@@ -30,8 +30,8 @@ function do_deps() {
     [[ -z ${GITHUB_ACTIONS:-} ]] && return 0
     export PATH=/usr/bin/core_perl:$PATH
     NAME=$(git config user.name) && EMAIL=$(git config user.email)
-    [ -z "$NAME" ] && git config --global user.name "fadlyas07" || echo "git.config name already setup"
-    [ -z "$EMAIL" ] && git config --global user.email "mhmmdfdlyas@gmail.com" || echo "git.config email already setup"
+    [ -z "$NAME" ] && git config --global user.name "greenforce-bot" || echo "git.config name already setup"
+    [ -z "$EMAIL" ] && git config --global user.email "85951498+greenforce-bot@users.noreply.github.com" || echo "git.config email already setup"
     mkdir -p ~/.git/hooks/
     wget "https://github.com/fadlyas07/Scripts/raw/master/github/commit-msg"
     mv commit-msg ~/.git/hooks/ && chmod +x ~/.git/hooks/commit-msg
