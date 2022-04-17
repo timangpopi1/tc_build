@@ -19,7 +19,10 @@
 DIR="$(pwd ...)"
 
 # clone push repo
-git clone --single-branch "https://fadlyas07:$GITHUB_TOKEN@github.com/greenforce-project/clang-llvm" -b main --depth=1
+git clone --single-branch "https://fadlyas07:$GH_TOKEN@github.com/greenforce-project/clang-llvm" -b main --depth=1
+
+# clone LLVM repo
+git clone --single-branch "https://github.com/llvm/llvm-project" -b main --depth=1
 
 # Simplify clang version
 path="llvm-project/clang/lib/Basic/Version.cpp"
@@ -37,7 +40,7 @@ JobsTotal="$(($(nproc)*2))"
     --projects "clang;compiler-rt;lld;polly" \
     --incremental \
     --no-update \
-    --lto thin \
+    #--lto thin \
     --no-ccache \
     --targets "ARM;AArch64" \
     --build-stage1-only \
@@ -76,7 +79,7 @@ llvm_commit_url="https://github.com/llvm/llvm-project/commit/$short_llvm_commit"
 
 binutils_version="$(ls | grep "^binutils-" | sed "s/binutils-//g")"
 clang_version="$(install/bin/clang --version | head -n1)"
-#rel_msg="Automated build of LLVM + Clang $clang_version as of commit [$short_llvm_commit]($llvm_commit_url) and binutils $binutils_version."
+rel_msg="Automated build of LLVM + Clang $clang_version as of commit [$short_llvm_commit]($llvm_commit_url) and binutils $binutils_version."
 
 # Push to GitHub
 # Update Git repository
@@ -90,23 +93,21 @@ git commit -m "Bump to $(date '+%Y%m%d') build" -m "Binutils version: $binutils_
 git push
 popd
 
-#tar -czf "$files" install/*
-#echo "$rel_msg" >> body
-
+#tar -czf "$files" $(pwd)/clang-llvm/*
+echo "$rel_msg" >> body
 # Create github release tag
-#./github-release release \
-    #--security-token "$GITHUB_TOKEN" \
-    #--user "greenforce-project" \
-    #--repo "clang-llvm" \
-    #--tag "$rel_date" \
-    #--name "$rel_friendly_date" \
-    #--description "$(cat body)" || echo "Tag already exists, uploading files ..."
-
+./github-release release \
+    --security-token "$GITHUB_TOKEN" \
+    --user "greenforce-project" \
+    --repo "clang-llvm" \
+    --tag "$rel_date" \
+    --name "$rel_friendly_date" \
+    --description "$(cat body)" || echo "Tag already exists"
 # Push files to github release
 #./github-release upload \
-    #--security-token "$GITHUB_TOKEN" \
-    #--user "greenforce-project" \
-    #--repo "clang-llvm" \
-    #--tag "$rel_date" \
-    #--name "$files" \
-    #--file "$files"
+#    --security-token "$GITHUB_TOKEN" \
+#    --user "greenforce-project" \
+#    --repo "clang-llvm" \
+#    --tag "$rel_date" \
+#    --name "$files" \
+#    --file "$files"

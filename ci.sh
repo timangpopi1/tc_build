@@ -28,6 +28,16 @@ function do_binutils() {
 function do_deps() {
     # We only run this when running on GitHub Actions
     [[ -z ${GITHUB_ACTIONS:-} ]] && return 0
+    export PATH=/usr/bin/core_perl:$PATH
+    NAME=$(git config user.name) && EMAIL=$(git config user.email)
+    [ -z "$NAME" ] && git config --global user.name "fadlyas07" || echo "git.config name already setup"
+    [ -z "$EMAIL" ] && git config --global user.email "mhmmdfdlyas@gmail.com" || echo "git.config email already setup"
+    mkdir -p ~/.git/hooks/
+    wget "https://github.com/fadlyas07/Scripts/raw/master/github/commit-msg"
+    mv commit-msg ~/.git/hooks/ && chmod +x ~/.git/hooks/commit-msg
+    git config --global core.hooksPath ~/.git/hooks
+    wget "https://github.com/fadlyas07/Scripts/raw/master/github/github-release"
+    sudo chmod +x github-release
     sudo apt-get install -y --no-install-recommends \
         bc \
         bison \
