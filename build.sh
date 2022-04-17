@@ -40,7 +40,7 @@ JobsTotal="$(($(nproc)*2))"
     --projects "clang;compiler-rt;lld;polly" \
     --incremental \
     --no-update \
-    #--lto thin \
+    --lto thin \
     --no-ccache \
     --targets "ARM;AArch64" \
     --build-stage1-only \
