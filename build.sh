@@ -40,17 +40,14 @@ JobsTotal="$(($(nproc)*2))"
     --projects "clang;compiler-rt;lld;polly" \
     --incremental \
     --no-update \
-    --lto thin \
     --no-ccache \
-    --targets "ARM;AArch64" \
-    --build-stage1-only \
-    --install-stage1-only
+    --targets "ARM;AArch64"
 
 # Build binutils
 ./build-binutils.py --targets arm aarch64
 
 # Remove unused products
-rm -fr install/include install/lib/libclang-cpp.so.15git
+rm -fr install/include #install/lib/libclang-cpp.so.15git
 rm -f install/lib/*.a install/lib/*.la
 
 # Strip remaining products
