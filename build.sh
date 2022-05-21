@@ -82,11 +82,16 @@ rel_msg="Automated build of LLVM + Clang $clang_version as of commit [$short_llv
 # Update Git repository
 #files="clang-$clang_version-$rel_date-$rel_time.tar.gz"
 
+git config --global user.name "greenforce-bot"
+git config --global user.email "85951498+greenforce-bot@users.noreply.github.com"
 pushd $(pwd)/clang-llvm
 rm -rf *
 cp -r ../install/* .
 git add -f .
-git commit -m "Bump to $(date '+%Y%m%d') build" -m "Binutils version: $binutils_version" -m "clang version: $clang_version"
+git commit -am "Bump to $(date '+%Y%m%d') build
+
+Binutils version: $binutils_version
+clang version: $clang_version"
 git push
 popd
 
