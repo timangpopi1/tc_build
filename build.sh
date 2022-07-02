@@ -18,6 +18,10 @@
 # Set a directory
 DIR="$(pwd ...)"
 
+# Setup about github-release
+curl -Lo $(pwd)/gh-release https://github.com/ZyCromerZ/tc-build/raw/main/github-release
+[ -f "$(pwd)/gh-release" ] && chmod u+x $(pwd)/gh-release
+
 # clone push repo
 git clone --single-branch "https://fadlyas07:$GH_TOKEN@github.com/greenforce-project/clang-llvm" -b main --depth=1
 
@@ -40,8 +44,11 @@ JobsTotal="$(($(nproc)*2))"
     --projects "clang;compiler-rt;lld;polly" \
     --incremental \
     --no-update \
-    --no-ccache \
-    --targets "ARM;AArch64"
+    --targets "ARM;AArch64" || status="failed"
+    
+if [ $status != "failed" ]; then
+    status="success"
+fi
 
 # Build binutils
 ./build-binutils.py --targets arm aarch64
@@ -70,7 +77,8 @@ rel_time="$(date +'%H%M')" # HoursMinute
 rel_friendly_date="$(date '+%B %-d, %Y')" # "Month day, year" format
 
 pushd $(pwd)/llvm-project
-short_llvm_commit="$(cut -c-8 <<< $(git rev-parse HEAD))"
+commit_msg=$(git log --pretty="format:%s" | head -n1)
+short_llvm_commit="$(git rev-parse --short HEAD)"
 popd
 llvm_commit_url="https://github.com/llvm/llvm-project/commit/$short_llvm_commit"
 
@@ -82,34 +90,54 @@ rel_msg="Automated build of LLVM + Clang $clang_version as of commit [$short_llv
 # Update Git repository
 #files="clang-$clang_version-$rel_date-$rel_time.tar.gz"
 
-git config --global user.name "greenforce-bot"
-git config --global user.email "85951498+greenforce-bot@users.noreply.github.com"
+git config --global user.name "greenforce-auto-build"
+git config --global user.email "greenforce-auto-build@users.noreply.github.com"
+
 pushd $(pwd)/clang-llvm
 rm -rf *
 cp -r ../install/* .
 git add -f .
-git commit -am "Bump to $(date '+%Y%m%d') build
-
+template=$(echo -e "
+------------CLANG-INFO-BEGIN------------
+Clang version: $clang_version
 Binutils version: $binutils_version
-clang version: $clang_version"
+LLVM repo commit: $commit_msg
+Link: $llvm_commit_url
+--------------CLANG-INFO-END--------------
+")
+
+git commit -m "greenforce: Bump to $(date '+%Y%m%d') build" -m "$template"
 git push
 popd
 
 #tar -czf "$files" $(pwd)/clang-llvm/*
 echo "$rel_msg" >> body
-# Create github release tag
-./github-release release \
-    --security-token "$GITHUB_TOKEN" \
-    --user "greenforce-project" \
-    --repo "clang-llvm" \
-    --tag "$rel_date" \
-    --name "$rel_friendly_date" \
-    --description "$(cat body)" || echo "Tag already exists"
-# Push files to github release
+
+if [ $status == success ]; then
+    pushtag() {
+        ./github-release release \
+            --security-token "$GH_TOKEN" \
+            --user "greenforce-project" \
+            --repo "clang-llvm" \
+            --tag "$rel_date" \
+            --name "$rel_friendly_date" \
+            --description "$(cat body)" || echo "Tag already exists"
+    }
+    if [ $(pushtag) == "Tag already exists" ]; then
+        if ! [ -f "$(pwd)/gh-release" ]; then
+            echo "gh-release file not found, pls check it!" && exit
+        else
+            chmod +x $(pwd)/gh-release
+            sleep 10
+            pushtag || echo "Failed again, Tag is already exists!"
+        fi
+    fi
+fi
+
 #./github-release upload \
-#    --security-token "$GITHUB_TOKEN" \
-#    --user "greenforce-project" \
-#    --repo "clang-llvm" \
-#    --tag "$rel_date" \
-#    --name "$files" \
-#    --file "$files"
+    #--security-token "$GITHUB_TOKEN" \
+    #--user "greenforce-project" \
+    #--repo "clang-llvm" \
+    #--tag "$rel_date" \
+    #--name "$files" \
+    #--file "$files" || echo "Maybe failed :/" && status_push="confused"
