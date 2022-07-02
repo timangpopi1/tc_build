@@ -20,7 +20,7 @@ DIR="$(pwd ...)"
 
 # Setup about github-release
 curl -Lo $(pwd)/gh-release https://github.com/ZyCromerZ/tc-build/raw/main/github-release
-[ -f "$(pwd)/gh-release" ] && chmod u+x $(pwd)/gh-release
+[[ -f "$(pwd)/gh-release" ]] && chmod u+x $(pwd)/gh-release
 
 # clone push repo
 git clone --single-branch "https://fadlyas07:$GH_TOKEN@github.com/greenforce-project/clang-llvm" -b main --depth=1
@@ -46,7 +46,7 @@ JobsTotal="$(($(nproc)*2))"
     --no-update \
     --targets "ARM;AArch64" || status="failed"
     
-if [ $status != "failed" ]; then
+if [[ $status != "failed" ]]; then
     status="success"
 fi
 
@@ -113,7 +113,7 @@ popd
 #tar -czf "$files" $(pwd)/clang-llvm/*
 echo "$rel_msg" >> body
 
-if [ $status == success ]; then
+if [[ $status == success ]]; then
     pushtag() {
         ./github-release release \
             --security-token "$GH_TOKEN" \
@@ -123,7 +123,7 @@ if [ $status == success ]; then
             --name "$rel_friendly_date" \
             --description "$(cat body)" || echo "Tag already exists"
     }
-    if [ $(pushtag) == "Tag already exists" ]; then
+    if [[ $(pushtag) == "Tag already exists" ]]; then
         if ! [ -f "$(pwd)/gh-release" ]; then
             echo "gh-release file not found, pls check it!" && exit
         else
