@@ -124,7 +124,7 @@ if [[ $status == success ]]; then
             --description "$(cat body)" || echo "Tag already exists"
     }
     if [[ $(pushtag) == "Tag already exists" ]]; then
-        if ! [ -f "$(pwd)/gh-release" ]; then
+        if ! [[ -f "$(pwd)/gh-release" ]]; then
             echo "gh-release file not found, pls check it!" && exit
         else
             chmod +x $(pwd)/gh-release
