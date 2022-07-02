@@ -54,7 +54,7 @@ fi
 ./build-binutils.py --targets arm aarch64
 
 # Remove unused products
-rm -fr install/include #install/lib/libclang-cpp.so.15git
+rm -fr install/include install/lib/libclang-cpp.so.15git
 rm -f install/lib/*.a install/lib/*.la
 
 # Strip remaining products
