@@ -83,7 +83,7 @@ popd
 llvm_commit_url="https://github.com/llvm/llvm-project/commit/$short_llvm_commit"
 
 binutils_version="$(ls | grep "^binutils-" | sed "s/binutils-//g")"
-clang_version="$(install/bin/clang --version | head -n1)"
+clang_version="$(install/bin/clang --version | head -n1 | cut -d' ' -f4)"
 rel_msg="Automated build of LLVM + Clang $clang_version as of commit [$short_llvm_commit]($llvm_commit_url) and binutils $binutils_version."
 
 # Push to GitHub
