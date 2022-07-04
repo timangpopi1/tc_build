@@ -48,6 +48,8 @@ JobsTotal="$(($core*$core))"
     --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS=-O3 CMAKE_CXX_FLAGS=-O3 LLVM_USE_LINKER=lld LLVM_ENABLE_LLD=ON" \
     --projects "clang;compiler-rt;lld;polly" \
     --incremental \
+    --build-stage1-only \
+    --install-stage1-only \
     --no-update \
     --targets "ARM;AArch64" || status="failed"
     
