@@ -98,12 +98,12 @@ rm -rf *
 cp -r ../install/* .
 git add -f .
 template=$(echo -e "
-------------CLANG-INFO-BEGIN------------
+-----------[CLANG INFO BEGIN]-----------
 Clang version: $clang_version
 Binutils version: $binutils_version
 LLVM repo commit: $commit_msg
 Link: $llvm_commit_url
--------------CLANG-INFO-END-------------
+------------[CLANG INFO END]------------
 ")
 
 git commit -m "greenforce: Bump to $(date '+%Y%m%d') build" -m "$template"
