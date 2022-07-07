@@ -90,7 +90,6 @@ popd
 llvm_commit_url="https://github.com/llvm/llvm-project/commit/$short_llvm_commit"
 
 binutils_version="$(ls | grep "^binutils-" | sed "s/binutils-//g")"
-clang="$(install/bin/clang --version | head -n1 | cut -d' ' -f4)"
 clang_version="$(install/bin/clang --version | head -n1 | cut -d' ' -f4)"
 rel_msg="Automated build of LLVM + Clang $clang_version as of commit [$short_llvm_commit]($llvm_commit_url) and binutils $binutils_version."
 
@@ -105,12 +104,12 @@ rm -rf *
 cp -r ../install/* .
 git add -f .
 template=$(echo -e "
+-----------[CLANG INFO BEGIN]-----------
 Clang version: $clang_version
 Binutils version: $binutils_version
 LLVM repo commit: $commit_msg
 Link: $llvm_commit_url
-
- * $clang *
+------------[CLANG INFO END]------------
 ")
 
 git commit -m "greenforce: Bump to $(date '+%Y%m%d') build" -m "$template"
