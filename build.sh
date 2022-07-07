@@ -19,7 +19,7 @@
 DIR="$(pwd ...)"
 
 # Setup about github-release
-curl -Lo $(pwd)/gh-release https://github.com/ZyCromerZ/tc-build/raw/main/github-release
+curl -Lo $(pwd)/gh-release https://github.com/fadlyas07/Scripts/raw/master/github/github-release
 [[ -f "$(pwd)/gh-release" ]] && chmod u+x $(pwd)/gh-release
 
 # clone push repo
