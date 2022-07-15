@@ -45,16 +45,19 @@ core="$(nproc --all)"
 JobsTotal="$(($core*$core))"
 ./build-llvm.py \
     --clang-vendor "greenforce" \
-    --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal LLVM_USE_LINKER=lld LLVM_ENABLE_LLD=ON" \
+    --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS='-g0 -O3' CMAKE_CXX_FLAGS='-g0 -O3' LLVM_USE_LINKER=lld LLVM_ENABLE_LLD=ON" \
     --projects "clang;compiler-rt;lld;polly" \
     --incremental \
+    --pgo kernel-defconfig \
     --build-stage1-only \
     --install-stage1-only \
     --no-update \
-    --targets "ARM;AArch64" || status="failed"
+    --targets "ARM;AArch64" 2>&1 | tee "$DIR/build.log" || status="failed"
     
 if [[ $status != "failed" ]]; then
     status="success"
+else
+    exit 1
 fi
 
 # Build binutils
@@ -102,14 +105,13 @@ git config --global user.email "greenforce-auto-build@users.noreply.github.com"
 pushd $(pwd)/clang-llvm
 rm -rf *
 cp -r ../install/* .
+[[ ! -e README.md && ! -f README.md ]] && wget https://github.com/greenforce-project/clang-llvm/raw/main/README.md
 git add -f .
 template=$(echo -e "
------------[CLANG INFO BEGIN]-----------
 Clang version: $clang_version
 Binutils version: $binutils_version
 LLVM repo commit: $commit_msg
 Link: $llvm_commit_url
-------------[CLANG INFO END]------------
 ")
 
 git commit -m "greenforce: Bump to $(date '+%Y%m%d') build" -m "$template"
@@ -120,7 +122,7 @@ popd
 echo "$rel_msg" >> body
 
 if [[ $status == success ]]; then
-    pushtag() {
+    push_tag() {
         ./github-release release \
             --security-token "$GH_TOKEN" \
             --user "greenforce-project" \
@@ -129,19 +131,40 @@ if [[ $status == success ]]; then
             --name "$rel_friendly_date" \
             --description "$(cat body)" || echo "Tag already exists"
     }
-    if [[ $(pushtag) == "Tag already exists" ]]; then
+    push_log() {
+        ./github-release release \
+            --security-token "$GH_TOKEN" \
+            --user "greenforce-project" \
+            --repo "clang-llvm" \
+            --tag "$rel_date" \
+            --name "build.log" \
+            --file "${1}" || echo "Failed to push!"
+    }
+    if [[ $(push_tag) == "Tag already exists" ]]; then
         if ! [[ -f "$(pwd)/gh-release" ]]; then
             echo "gh-release file not found, pls check it!" && exit
         else
             chmod +x $(pwd)/gh-release
             sleep 10
-            pushtag || echo "Failed again, Tag is already exists!"
+            push_tag || echo "Failed again, Tag is already exists!"
+        fi
+    fi
+    push_log "$DIR/build.log" || push_status=fail
+    aaa=$(find -O3 -name build.log)
+    if [[ ${aaa} == "" && ${push_status} == fail ]]; then
+        if ! [[ -f "$DIR/build.log" ]]; then
+            echo "Build log is missing, please enter the proper folder!"
+            echo "push failed!" && exit
+        else
+            sleep 3
+            push_log ${aaa}
+            echo "push success!"
         fi
     fi
 fi
 
 #./github-release upload \
-    #--security-token "$GITHUB_TOKEN" \
+    #--security-token "$GH_TOKEN" \
     #--user "greenforce-project" \
     #--repo "clang-llvm" \
     #--tag "$rel_date" \
