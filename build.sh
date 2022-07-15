@@ -49,7 +49,6 @@ JobsTotal="$(($core*$core))"
     --projects "clang;compiler-rt;lld;polly" \
     --incremental \
     --pgo kernel-defconfig \
-    --build-stage1-only \
     --install-stage1-only \
     --no-update \
     --targets "ARM;AArch64" 2>&1 | tee "$DIR/build.log" || status="failed"
