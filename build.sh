@@ -19,7 +19,7 @@
 DIR="$(pwd ...)"
 
 # Setup about github-release
-curl -Lo $(pwd)/gh-release https://github.com/fadlyas07/Scripts/raw/master/github/github-release
+curl -Lo $(pwd)/gh-release https://github.com/fadlyas07/scripts/raw/master/github/github-release
 [[ -f "$(pwd)/gh-release" ]] && chmod u+x $(pwd)/gh-release
 
 # clone push repo
@@ -41,17 +41,14 @@ if [[ ! -f "$(pwd)/gh-release" ]]; then
 fi
 
 # Build LLVM
-core="$(nproc --all)"
-JobsTotal="$(($core*$core))"
+JobsTotal="$(($(nproc --all)*$(nproc --all)))"
 ./build-llvm.py \
     --clang-vendor "greenforce" \
     --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS='-g0 -O3' CMAKE_CXX_FLAGS='-g0 -O3' LLVM_USE_LINKER=lld LLVM_ENABLE_LLD=ON" \
     --projects "clang;compiler-rt;lld;polly" \
     --incremental \
-    --build-stage1-only \
-    --install-stage1-only \
     --no-update \
-    --targets "ARM;AArch64" 2>&1 | tee "$DIR/build.log" || status="failed"
+    --targets "ARM;AArch64" 2>&1 | tee build.log || status="failed"
     
 if [[ $status != "failed" ]]; then
     status="success"
@@ -137,7 +134,7 @@ if [[ $status == success ]]; then
             --repo "clang-llvm" \
             --tag "$rel_date" \
             --name "build.log" \
-            --file "${1}" || echo "Failed to push!"
+            --file "build.log" || echo "Failed to push"
     }
     if [[ $(push_tag) == "Tag already exists" ]]; then
         if ! [[ -f "$(pwd)/gh-release" ]]; then
@@ -148,16 +145,13 @@ if [[ $status == success ]]; then
             push_tag || echo "Failed again, Tag is already exists!"
         fi
     fi
-    push_log "$DIR/build.log" || push_status=fail
-    aaa=$(find -O3 -name build.log)
-    if [[ ${aaa} == "" && ${push_status} == fail ]]; then
-        if ! [[ -f "$DIR/build.log" ]]; then
-            echo "Build log is missing, please enter the proper folder!"
-            echo "push failed!" && exit
+    if [[ $(push_log) == "Failed to push" ]]; then
+        if ! [[ -f "$(pwd)/gh-release" ]]; then
+            echo "gh-release file not found, pls check it!" && exit
         else
-            sleep 3
-            push_log ${aaa}
-            echo "push success!"
+            chmod +x $(pwd)/gh-release
+            sleep 10
+            push_log || echo "Failed again, Build.log cannot push into github release!"
         fi
     fi
 fi
