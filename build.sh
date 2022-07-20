@@ -48,7 +48,7 @@ JobsTotal="$(($(nproc --all)*$(nproc --all)))"
     --projects "clang;compiler-rt;lld;polly" \
     --incremental \
     --no-update \
-    --targets "ARM;AArch64" 2>&1 | tee build.log || status="failed"
+    --targets "ARM;AArch64" 2>&1 | tee /tmp/build.log || status="failed"
     
 if [[ $status != "failed" ]]; then
     status="success"
@@ -134,7 +134,7 @@ if [[ $status == success ]]; then
             --repo "clang-llvm" \
             --tag "$rel_date" \
             --name "build.log" \
-            --file "build.log" || echo "Failed to push"
+            --file "/tmp/build.log" || echo "Failed to push"
     }
     if [[ $(push_tag) == "Tag already exists" ]]; then
         if ! [[ -f "$(pwd)/gh-release" ]]; then
