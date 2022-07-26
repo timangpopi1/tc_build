@@ -128,7 +128,7 @@ if [[ $status == success ]]; then
             --description "$(cat body)" || echo "Tag already exists"
     }
     push_log() {
-        ./github-release release \
+        ./github-release upload \
             --security-token "$GH_TOKEN" \
             --user "greenforce-project" \
             --repo "clang-llvm" \
