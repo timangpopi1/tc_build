@@ -6,6 +6,8 @@ name: LLVM Toolchain
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/neutron-toolchains/docker-image:arch-neutron
     environment: Actions
     steps:
       - name: Download scripts
