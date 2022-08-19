@@ -41,19 +41,22 @@ if [[ ! -f "$(pwd)/gh-release" ]]; then
 fi
 
 # Build LLVM
-JobsTotal="$(($(nproc --all)*$(nproc --all)))"
+JobsTotal="$(($(nproc --all)*4))"
 ./build-llvm.py \
     --clang-vendor "greenforce" \
-    --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS='-g0 -O3' CMAKE_CXX_FLAGS='-g0 -O3' LLVM_USE_LINKER=lld LLVM_ENABLE_LLD=ON" \
-    --projects "clang;compiler-rt;lld;polly" \
+    --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS='-g0 -O3' CMAKE_CXX_FLAGS='-g0 -O3'" \
+    --projects "clang;lld;polly" \
     --pgo "kernel-defconfig-slim" \
     --no-update \
-    --targets "ARM;AArch64" 2>&1 | tee /tmp/build.log || status="failed"
-    
-if [[ $status != "failed" ]]; then
-    status="success"
-else
+    --targets "ARM;AArch64" 2>&1 | tee /tmp/build.log
+
+if ! [[ -e install/bin/clang-1* ]]; then
+    status="failed"
+    echo "Building Failed bos!"
     exit 1
+else
+    status="success"
+    echo "Build Complete!"
 fi
 
 # Build binutils
