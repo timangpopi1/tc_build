@@ -37,6 +37,8 @@ function do_deps() {
     git config --global core.hooksPath ~/.git/hooks
     wget "https://github.com/fadlyas07/Scripts/raw/master/github/github-release"
     sudo chmod +x github-release
+    get_distro_name=$(source /etc/os-release && echo ${NAME})
+    if [[ "$get_distro_name" == "Ubuntu" ]]; then
     sudo apt-get install -y --no-install-recommends \
         bc \
         bison \
@@ -58,6 +60,7 @@ function do_deps() {
         texinfo \
         xz-utils \
         zlib1g-dev
+    fi
 }
 
 function do_kernel() {
