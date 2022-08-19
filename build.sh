@@ -110,7 +110,7 @@ LLVM repo commit: $commit_msg
 Link: $llvm_commit_url
 ")
 
-git commit -m "greenforce: Bump to $(date '+%Y%m%d') build" -m "$template"
+git commit -m "greenforce: Bump to $(date '+%Y%m%d') build" -m "$template" --signoff
 git push
 popd
 
