@@ -1,13 +1,13 @@
 env:
-    GH_TOKEN: "ENCRYPTED[4526be3acf95a0d69e63c2024f61eacc9becd1b166eb4c671a0f62030a7927284dab21b9a07ba52c425948ff430e8727]"
+    GH_TOKEN: ENCRYPTED[2e4305c44355ef6f973814b1e9eb018a6c7628749e7325172773a1ec5868eadbc53332478cf3a54c80e149eda2465bfb]
 
 task:
   name: LLVM Toolchain
   timeout_in: 480m  
   container:
       image: ghcr.io/neutron-toolchains/docker-image:arch-neutron
-      cpu: 16
-      memory: 64G
+      cpu: 8
+      memory: 32G
         
   Get-deps_script:
        - bash ci.sh deps
