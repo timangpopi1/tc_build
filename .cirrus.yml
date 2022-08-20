@@ -3,14 +3,14 @@ env:
 
 task:
   name: LLVM Toolchain
-  timeout_in: 480m  
+  timeout_in: 480m
   container:
       image: ghcr.io/neutron-toolchains/docker-image:arch-neutron
       cpu: 8
       memory: 32G
-        
+
   Get-deps_script:
        - bash ci.sh deps
-  
+
   Deploy-builder_script:
       - bash build.sh

@@ -26,17 +26,13 @@ function do_binutils() {
 }
 
 function do_deps() {
-    # We only run this when running on GitHub Actions
-    [[ -z ${GITHUB_ACTIONS:-} ]] && return 0
     export PATH=/usr/bin/core_perl:$PATH
     git config --global user.name "greenforce-bot"
     git config --global user.email "85951498+greenforce-bot@users.noreply.github.com"
-    mkdir -p ~/.git/hooks/
-    wget "https://github.com/fadlyas07/Scripts/raw/master/github/commit-msg"
-    mv commit-msg ~/.git/hooks/ && chmod +x ~/.git/hooks/commit-msg
+    mkdir -p ~/.git/hooks
     git config --global core.hooksPath ~/.git/hooks
-    wget "https://github.com/fadlyas07/Scripts/raw/master/github/github-release"
-    sudo chmod +x github-release
+    curl -Lo ~/.git/hooks/commit-msg https://review.lineageos.org/tools/hooks/commit-msg
+    chmod u+x ~/.git/hooks/commit-msg
     get_distro_name=$(source /etc/os-release && echo ${NAME})
     if [[ "$get_distro_name" == "Ubuntu" ]]; then
     sudo apt-get install -y --no-install-recommends \
