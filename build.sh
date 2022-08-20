@@ -49,15 +49,6 @@ JobsTotal="$(($(nproc --all)*4))"
     --no-update \
     --targets "ARM;AArch64" 2>&1 | tee /tmp/build.log
 
-if ! [[ -e install/bin/clang-1* ]]; then
-    status="failed"
-    echo "Building Failed bos!"
-    exit 1
-else
-    status="success"
-    echo "Build Complete!"
-fi
-
 # Build binutils
 ./build-binutils.py --targets arm aarch64
 
