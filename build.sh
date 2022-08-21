@@ -20,7 +20,7 @@ DIR="$(pwd ...)"
 
 # Setup about github-release
 curl -Lo $(pwd)/gh-release https://github.com/fadlyas07/scripts/raw/master/github/github-release
-[[ -f "$(pwd)/gh-release" ]] && chmod u+x $(pwd)/gh-release
+[[ -f "$(pwd)/gh-release" ]] && chmod +x $(pwd)/gh-release
 
 # clone push repo
 git clone --single-branch "https://fadlyas07:$GH_TOKEN@github.com/greenforce-project/clang-llvm" -b main --depth=1
@@ -47,8 +47,7 @@ JobsTotal="$(($(nproc --all)*4))"
 ./build-llvm.py \
     --clang-vendor "greenforce" \
     --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS='-g0 -O3' CMAKE_CXX_FLAGS='-g0 -O3'" \
-    --projects "clang;compiler-rt;lld;polly" \
-    --incremental \
+    --lto "thin" \
     --pgo "kernel-defconfig-slim" \
     --no-update \
     --targets "ARM;AArch64" 2>&1 | tee "$log/build.log"
@@ -116,7 +115,7 @@ echo "$rel_msg" >> body
 
 if [[ $status == success ]]; then
     push_tag() {
-        ./github-release release \
+        ./gh-release release \
             --security-token "$GH_TOKEN" \
             --user "greenforce-project" \
             --repo "clang-llvm" \
@@ -125,7 +124,7 @@ if [[ $status == success ]]; then
             --description "$(cat body)" || echo "Tag already exists"
     }
     push_log() {
-        ./github-release upload \
+        ./gh-release upload \
             --security-token "$GH_TOKEN" \
             --user "greenforce-project" \
             --repo "clang-llvm" \
