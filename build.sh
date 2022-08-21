@@ -40,6 +40,8 @@ if [[ ! -f "$(pwd)/gh-release" ]]; then
     echo "gh-release is missing!" && exit
 fi
 
+log="$(pwd)/temporary"
+mkdir -p "$log"
 # Build LLVM
 JobsTotal="$(($(nproc --all)*4))"
 ./build-llvm.py \
@@ -49,7 +51,7 @@ JobsTotal="$(($(nproc --all)*4))"
     --incremental \
     --pgo "kernel-defconfig-slim" \
     --no-update \
-    --targets "ARM;AArch64" 2>&1 | tee /tmp/build.log
+    --targets "ARM;AArch64" 2>&1 | tee "$log/build.log"
 
 # Build binutils
 ./build-binutils.py --targets arm aarch64
@@ -129,7 +131,7 @@ if [[ $status == success ]]; then
             --repo "clang-llvm" \
             --tag "$rel_date" \
             --name "build.log" \
-            --file "/tmp/build.log" || echo "Failed to push"
+            --file "$log/build.log" || echo "Failed to push"
     }
     if [[ $(push_tag) == "Tag already exists" ]]; then
         if ! [[ -f "$(pwd)/gh-release" ]]; then
