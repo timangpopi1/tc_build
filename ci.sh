@@ -33,6 +33,8 @@ function do_deps() {
     git config --global core.hooksPath ~/.git/hooks
     curl -Lo ~/.git/hooks/commit-msg https://review.lineageos.org/tools/hooks/commit-msg
     chmod u+x ~/.git/hooks/commit-msg
+    wget "https://github.com/fadlyas07/Scripts/raw/master/github/github-release"
+    chmod +x github-release
     get_distro_name=$(source /etc/os-release && echo ${NAME})
     if [[ "$get_distro_name" == "Ubuntu" ]]; then
     sudo apt-get install -y --no-install-recommends \
