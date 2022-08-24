@@ -110,7 +110,9 @@ git commit -m "greenforce: Bump to $(date '+%Y%m%d') build" -m "$template" --sig
 git push
 popd
 get=$(du -sh "install")
+cc_version=$(install/bin/clang --version | head -n1)
 echo "Repo size ${get}B"
+echo "clang version: ${cc_version}"
 
 #tar -czf "$files" $(pwd)/clang-llvm/*
 echo "$rel_msg" >> body
