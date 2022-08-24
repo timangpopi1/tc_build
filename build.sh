@@ -46,8 +46,9 @@ mkdir -p "$log"
 JobsTotal="$(($(nproc --all)*4))"
 ./build-llvm.py \
     --clang-vendor "greenforce" \
-    --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS=-O3 CMAKE_CXX_FLAGS=-O3" \
+    --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS='-g0 -O3' CMAKE_CXX_FLAGS='-g0 -O3' LLVM_USE_LINKER=lld LLVM_ENABLE_LLD=ON" \
     --pgo "kernel-defconfig-slim" \
+    --projects "clang;compiler-rt;lld;polly" \
     --no-update \
     --targets "ARM;AArch64" 2>&1 | tee "$log/build.log"
 
@@ -108,6 +109,8 @@ Link: $llvm_commit_url
 git commit -m "greenforce: Bump to $(date '+%Y%m%d') build" -m "$template" --signoff
 git push
 popd
+get=$(du -sh "install")
+echo "Repo size ${get}B"
 
 #tar -czf "$files" $(pwd)/clang-llvm/*
 echo "$rel_msg" >> body
