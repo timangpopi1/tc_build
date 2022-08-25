@@ -46,7 +46,7 @@ mkdir -p "$log"
 JobsTotal="$(($(nproc --all)*4))"
 ./build-llvm.py \
     --clang-vendor "greenforce" \
-    --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS='-g0 -O3' CMAKE_CXX_FLAGS='-g0 -O3' LLVM_USE_LINKER=lld LLVM_ENABLE_LLD=ON" \
+    --defines "LLVM_PARALLEL_COMPILE_JOBS=$JobsTotal LLVM_PARALLEL_LINK_JOBS=$JobsTotal CMAKE_C_FLAGS='-g0 -O3' CMAKE_CXX_FLAGS='-g0 -O3'" \
     --pgo "kernel-defconfig-slim" \
     --projects "clang;compiler-rt;lld;polly" \
     --no-update \
